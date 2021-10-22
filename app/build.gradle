@@ -31,7 +31,8 @@ android {
     }
 }
 dependencies {
-    implementation 'com.github.mrizyver.EfficientLogs:debug:1.1.0'
+    debugImplementation 'com.github.mrizyver.EfficientLogs:debug:1.1.1'
+    releaseImplementation 'com.github.mrizyver.EfficientLogs:release:1.1.1'
     implementation 'com.android.support.constraint:constraint-layout:2.0.4'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
