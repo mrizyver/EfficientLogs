@@ -1,7 +1,6 @@
 package com.efficient.logs
 
 import java.io.File
-import java.util.*
 
 typealias LogMessage = () -> String?
 
