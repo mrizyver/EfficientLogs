@@ -79,5 +79,7 @@ inline fun loge(throwable: Throwable, message: LogMessage) {
 }
 
 fun logfile(file: File?) {
-    InternalLogs.logfile = file
+    if (LOG_ON) {
+        if (file?.exists() == false) file.createNewFile(); InternalLogs._logfile = file
+    }
 }

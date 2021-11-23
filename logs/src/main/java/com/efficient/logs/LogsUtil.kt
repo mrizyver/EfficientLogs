@@ -20,7 +20,7 @@ fun logMethodName(): String {
 
 @Suppress("NOTHING_TO_INLINE")
 inline fun indexOfCurrentClassStackTrace(): Int {
-    return Thread.currentThread().stackTrace.indexOfLast { it.className.endsWith("LogsKt") } + 1
+    return Thread.currentThread().stackTrace.indexOfLast { it.className.endsWith("LogsUtilKt") } + 1
 }
 
 fun getDetails(throwable: Throwable): String {

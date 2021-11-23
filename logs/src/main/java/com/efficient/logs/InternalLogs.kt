@@ -1,13 +1,12 @@
 package com.efficient.logs
 
-import android.os.SystemClock
 import android.util.Log
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
 object InternalLogs {
-    var logfile: File? = null
+    var _logfile: File? = null
     private val format by lazy { SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault()) }
 
     fun v(tag: String, text: String) {
@@ -41,7 +40,7 @@ object InternalLogs {
     }
 
     private fun writeToFile(tag: String, text: String) {
-        val time = format.format(Date(SystemClock.elapsedRealtime()))
-        logfile?.appendText("$time $tag/$text")
+        val time = format.format(Date(System.currentTimeMillis()))
+        _logfile?.appendText("$time $tag/$text\n")
     }
 }

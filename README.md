@@ -8,8 +8,8 @@ build.gradle (app)
 
 ```groovy
 dependencies {
-    debugImplementation 'com.github.mrizyver.EfficientLogs:debug:1.1.2'
-    releaseImplementation 'com.github.mrizyver.EfficientLogs:release:1.1.2'
+    debugImplementation 'com.github.mrizyver.EfficientLogs:debug:1.2.1'
+    releaseImplementation 'com.github.mrizyver.EfficientLogs:release:1.2.1'
 }
 ```
 
