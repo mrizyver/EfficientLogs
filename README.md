@@ -8,8 +8,8 @@ build.gradle (app)
 
 ```groovy
 dependencies {
-    debugImplementation 'com.github.mrizyver.EfficientLogs:debug:1.1.1'
-    releaseImplementation 'com.github.mrizyver.EfficientLogs:release:1.1.1'
+    debugImplementation 'com.github.mrizyver.EfficientLogs:debug:1.1.2'
+    releaseImplementation 'com.github.mrizyver.EfficientLogs:release:1.1.2'
 }
 ```
 
@@ -33,6 +33,17 @@ class ClassName {
         logi { "Info" }     //prints ClassName: methodName(): Info
         logw { "Warning" }  //prints ClassName: methodName(): Warning
         loge { "Error" }    //prints ClassName: methodName(): Error
+    }
+}
+```
+
+## Save logs to a file
+
+```kotlin
+class Application {
+    override fun onCreate() {
+        logfile(File(cacheDir, "log.txt"))  //start writing to a log file
+        logfile(null)                       //stop writing to a log file
     }
 }
 ```
