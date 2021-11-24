@@ -1,21 +1,48 @@
 plugins {
     id 'com.android.library'
     id 'kotlin-android'
+    id 'maven-publish'
 }
 
 android {
-    compileSdk 30
+    compileSdk 31
     defaultConfig {
         minSdk 16
-        targetSdk 30
-        versionCode 1
-        versionName "1.0"
+        targetSdk 31
     }
+    buildTypes {
+        release {
+            buildConfigField "boolean", "LOG_ON", "false"
+        }
+        debug {
+            buildConfigField "boolean", "LOG_ON", "true"
+        }
+    }
+
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
     kotlinOptions {
         jvmTarget = '1.8'
+    }
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.release
+                groupId = 'com.efficient.logs'
+                artifactId = 'release'
+                version = '1.2.1'
+            }
+            debug(MavenPublication){
+                from components.debug
+                groupId = 'com.efficient.logs'
+                artifactId = 'debug'
+                version = '1.2.1'
+            }
+        }
     }
 }
