@@ -1,3 +1,4 @@
+[![](https://jitpack.io/v/mrizyver/EfficientLogs.svg)](https://jitpack.io/#mrizyver/EfficientLogs)
 # EfficientLogs
 
 Android logs which have no performance impact in release builds.
