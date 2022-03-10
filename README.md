@@ -28,11 +28,11 @@ allprojects {
 ```kotlin
 class ClassName {
     fun methodName() {
-        logv { "Verbose" }  //prints ClassName: methodName(): Verbose
-        logd { "Debug" }    //prints ClassName: methodName(): Debug
-        logi { "Info" }     //prints ClassName: methodName(): Info
-        logw { "Warning" }  //prints ClassName: methodName(): Warning
-        loge { "Error" }    //prints ClassName: methodName(): Error
+        logv { "Verbose" }  //prints 'ClassName: methodName(): Verbose'
+        logd { "Debug" }    //prints 'ClassName: methodName(): Debug'
+        logi { "Info" }     //prints 'ClassName: methodName(): Info'
+        logw { "Warning" }  //prints 'ClassName: methodName(): Warning'
+        loge { "Error" }    //prints 'ClassName: methodName(): Error'
     }
 }
 ```
@@ -44,6 +44,22 @@ class Application {
     override fun onCreate() {
         logfile(File(cacheDir, "log.txt"))  //start writing to a log file
         logfile(null)                       //stop writing to a log file
+    }
+}
+```
+
+## Add a prefix to get an ability to filter only logs written in your project
+
+```kotlin
+class Application {
+    override fun onCreate() {
+        logprefix("my_prefix ")
+    }
+}
+
+class ClassName {
+    fun methodName() {
+        logd { "Debug" }    //prints 'my_prefix ClassName: methodName(): Debug'
     }
 }
 ```
