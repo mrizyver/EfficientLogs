@@ -2,8 +2,7 @@ package com.efficient.test
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import com.efficient.logs.logd
-import com.efficient.logs.logfile
+import com.efficient.logs.*
 import java.io.File
 
 class TestActivity : AppCompatActivity() {
@@ -12,10 +11,11 @@ class TestActivity : AppCompatActivity() {
         val file = File(cacheDir, "log.txt")
         file.deleteOnExit()
         logfile(file)
-        logd { "Hello0" }
+        logv { "Hello0" }
         logd { "Hello1" }
-        logd { "Hello2" }
-        logd { "Hello3" }
+        logprefix("/")
+        logi { "Hello2" }
+        logw { "Hello3" }
         println()
     }
 }
