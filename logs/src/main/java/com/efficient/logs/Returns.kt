@@ -2,7 +2,7 @@ package com.efficient.logs
 
 private var throwingAction: (() -> Unit)? = null
 fun setThrowingAction(action: () -> Unit) {
-    throwingAction = null
+    throwingAction = action
 }
 
 fun <T> throwing(throwable: Throwable? = null): T? {
