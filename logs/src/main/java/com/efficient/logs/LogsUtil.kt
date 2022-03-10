@@ -10,7 +10,7 @@ fun formatMessage(message: String?): String {
 
 fun logTag(): String {
     val index = indexOfCurrentClassStackTrace()
-    return Thread.currentThread().stackTrace[index].className.split('.').last()
+    return LogsConfig._prefix ?: "" + Thread.currentThread().stackTrace[index].className.split('.').last()
 }
 
 fun logMethodName(): String {

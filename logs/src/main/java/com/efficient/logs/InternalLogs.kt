@@ -40,7 +40,8 @@ object InternalLogs {
     }
 
     private fun writeToFile(tag: String, text: String) {
-        val time = format.format(Date(System.currentTimeMillis()))
-        _logfile?.appendText("$time $tag/$text\n")
+        val file = _logfile ?: return
+        val format = format.format(Date(System.currentTimeMillis()))
+        file.appendText("$format $tag/$text\n")
     }
 }

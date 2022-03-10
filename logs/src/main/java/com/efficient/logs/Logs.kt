@@ -82,3 +82,9 @@ fun logfile(file: File?) {
         if (file?.exists() == false) file.createNewFile(); InternalLogs._logfile = file
     }
 }
+
+fun logprefix(prefix: String?){
+    if (LOG_ON) {
+        LogsConfig._prefix = prefix
+    }
+}
