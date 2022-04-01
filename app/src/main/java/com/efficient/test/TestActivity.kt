@@ -11,11 +11,15 @@ class TestActivity : AppCompatActivity() {
         val file = File(cacheDir, "log.txt")
         file.deleteOnExit()
         logfile(file)
+        logv { "" }
         logv { "Hello0" }
         logd { "Hello1" }
         logprefix("/")
         logi { "Hello2" }
         logw { "Hello3" }
+        logw { nonempty("") }
+        logw { nonnull(null) }
+        logw { "Hello6" }
         println()
     }
 }

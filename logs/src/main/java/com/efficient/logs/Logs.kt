@@ -2,78 +2,84 @@ package com.efficient.logs
 
 import java.io.File
 
-typealias LogMessage = () -> String?
+typealias LogMessage = Configurator.() -> CharSequence?
 
 const val LOG_ON: Boolean = BuildConfig.LOG_ON
 
 @Suppress("NOTHING_TO_INLINE")
 inline fun logv() {
     if (LOG_ON) {
-        InternalLogs.v(logTag(), formatMessage(""))
+        InternalLogs.v(_logTag(), _formatMessage(""))
     }
 }
 
 inline fun logv(message: LogMessage) {
     if (LOG_ON) {
-        InternalLogs.v(logTag(), formatMessage(message()))
+        val msg = _parseMessage(Configurator.message()) ?: return
+        InternalLogs.v(_logTag(), _formatMessage(msg))
     }
 }
 
 @Suppress("NOTHING_TO_INLINE")
 inline fun logd() {
     if (LOG_ON) {
-        InternalLogs.d(logTag(), formatMessage(""))
+        InternalLogs.d(_logTag(), _formatMessage(""))
     }
 }
 
 inline fun logd(message: LogMessage) {
     if (LOG_ON) {
-        InternalLogs.d(logTag(), formatMessage(message()))
+        val msg = _parseMessage(Configurator.message()) ?: return
+        InternalLogs.d(_logTag(), _formatMessage(msg))
     }
 }
 
 @Suppress("NOTHING_TO_INLINE")
 inline fun logi() {
     if (LOG_ON) {
-        InternalLogs.i(logTag(), formatMessage(""))
+        InternalLogs.i(_logTag(), _formatMessage(""))
     }
 }
 
 inline fun logi(message: LogMessage) {
     if (LOG_ON) {
-        InternalLogs.i(logTag(), formatMessage(message()))
+        val msg = _parseMessage(Configurator.message()) ?: return
+        InternalLogs.i(_logTag(), _formatMessage(msg))
     }
 }
 
 @Suppress("NOTHING_TO_INLINE")
 inline fun logw() {
     if (LOG_ON) {
-        InternalLogs.w(logTag(), formatMessage(""))
+        InternalLogs.w(_logTag(), _formatMessage(""))
     }
 }
 
 inline fun logw(message: LogMessage) {
     if (LOG_ON) {
-        InternalLogs.w(logTag(), formatMessage(message()))
+        val msg = _parseMessage(Configurator.message()) ?: return
+        InternalLogs.w(_logTag(), _formatMessage(msg))
     }
 }
 
 inline fun loge(message: LogMessage) {
     if (LOG_ON) {
-        InternalLogs.e(logTag(), formatMessage(message()))
+        val msg = _parseMessage(Configurator.message()) ?: return
+        InternalLogs.e(_logTag(), _formatMessage(msg))
     }
 }
 
 @Suppress("NOTHING_TO_INLINE")
 inline fun loge(throwable: Throwable) {
     if (LOG_ON) {
-        InternalLogs.e(logTag(), formatMessage(getDetails(throwable)))
+        InternalLogs.e(_logTag(), _formatMessage(_getDetails(throwable)))
     }
 }
 
 inline fun loge(throwable: Throwable, message: LogMessage) {
     if (LOG_ON) {
-        InternalLogs.e(logTag(), formatMessage(message()), throwable)
+        val msg = _parseMessage(Configurator.message()) ?: return
+        InternalLogs.e(_logTag(), _formatMessage(msg), throwable)
     }
 }
 
