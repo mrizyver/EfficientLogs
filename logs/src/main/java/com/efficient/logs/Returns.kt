@@ -1,7 +1,7 @@
 package com.efficient.logs
 
-private var throwingAction: (() -> Unit)? = null
-fun setThrowingAction(action: () -> Unit) {
+private var throwingAction: ((Throwable) -> Unit)? = null
+fun setThrowingAction(action: (Throwable) -> Unit) {
     throwingAction = action
 }
 
@@ -10,7 +10,7 @@ fun <T> throwing(throwable: Throwable? = null): T? {
     if (BuildConfig.LOG_ON) {
         throw exception
     } else {
-        throwingAction?.invoke()
+        throwingAction?.invoke(exception)
         return null
     }
 }
