@@ -35,13 +35,13 @@ afterEvaluate {
                 from components.release
                 groupId = 'com.efficient.logs'
                 artifactId = 'release'
-                version = '1.2.5'
+                version = '1.2.6'
             }
             debug(MavenPublication){
                 from components.debug
                 groupId = 'com.efficient.logs'
                 artifactId = 'debug'
-                version = '1.2.5'
+                version = '1.2.6'
             }
         }
     }

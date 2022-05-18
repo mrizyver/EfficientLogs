@@ -11,6 +11,16 @@ class TestActivity : AppCompatActivity() {
         val file = File(cacheDir, "log.txt")
         file.deleteOnExit()
         logfile(file)
+
+        val obj = object {
+            val runnable = Runnable {
+                test {
+                    logv { "Runnable1" }
+                }
+                logv { "Runnable2" }
+            }
+        }
+        obj.runnable.run()
         logv { "" }
         logv { "Hello0" }
         logd { "Hello1" }
@@ -22,4 +32,6 @@ class TestActivity : AppCompatActivity() {
         logw { "Hello6" }
         println()
     }
+
+    fun test(block: () -> Unit) = block()
 }
