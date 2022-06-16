@@ -1,7 +1,10 @@
 package com.efficient.test
 
+import android.animation.ValueAnimator
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
+import android.view.animation.Animation
 import com.efficient.logs.*
 import java.io.File
 
@@ -27,11 +30,19 @@ class TestActivity : AppCompatActivity() {
         logprefix("/")
         logi { "Hello2" }
         logw { "Hello3" }
-        logw { nonempty("") }
-        logw { nonnull(null) }
+        logw { null.logNonEmpty() }
+        logw { "".logNonEmpty() }
+        logw { null.logNonNull() }
         logw { "Hello6" }
-        println()
+        val animator = ValueAnimator()
+        animator.addUpdateListener {
+            logv { "Hello from ValueAnimator" }
+            animator.cancel()
+        }
+        animator.repeatCount = 1
+        animator.setIntValues(0)
+        animator.start()
     }
-
-    fun test(block: () -> Unit) = block()
 }
+
+fun test(block: () -> Unit) = block()

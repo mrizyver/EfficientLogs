@@ -4,19 +4,18 @@ import java.io.PrintWriter
 import java.io.StringWriter
 
 @Suppress("FunctionName")
-fun _parseMessage(charSequence: CharSequence?): String? {
-    when (charSequence) {
-        is Configurator.NonNull -> if (charSequence.text == null) return null
-        is Configurator.NonEmpty -> if (charSequence.isNullOrEmpty()) return null
+fun _formatMessage(message: CharSequence?): String? {
+    when (message) {
+        is NonNull -> if (message.text == null) return null
+        is NonEmpty -> if (message.text?.isEmpty() == true) return null
     }
-    if (charSequence is Configurator.LogCharSequence) return charSequence.text.toString()
-    return charSequence?.toString()
-}
-
-@Suppress("FunctionName")
-fun _formatMessage(message: String?): String {
-    return if (message?.isEmpty() == true) _logMethodName()
-    else "${_logMethodName()}: $message"
+    val msg = when(message) {
+        is String -> message
+        is LogCharSequence -> message.text
+        else -> message.toString()
+    }
+    return if (msg?.isEmpty() == true) _logMethodName()
+    else "${_logMethodName()}: $msg"
 }
 
 @Suppress("FunctionName")
@@ -31,10 +30,12 @@ fun _logTag(): String {
 fun _logMethodName(): String {
     val index = _indexOfCurrentClassStackTrace()
     val methodName = Thread.currentThread().stackTrace[index].methodName
+    val methodNameParts = methodName.split()
     val className = Thread.currentThread().stackTrace[index].className.split('.').last()
-    val classNameParts = className.split("$").filter { it.length > 1 || it.getOrNull(0)?.isLetter() ?: false }
-    val isItInLambda = className.contains('$')
-    return if (isItInLambda) "${classNameParts[1]}()" else "$methodName()"
+    val classNameParts = className.split()
+    if (classNameParts.size > 1) return "${classNameParts[1]}()"
+    if (methodNameParts.size > 1) return "${methodNameParts[0]}()"
+    return "$methodName()"
 }
 
 @Suppress("FunctionName", "NOTHING_TO_INLINE")
@@ -54,3 +55,4 @@ fun _getDetails(throwable: Throwable): String {
         printWriter.close()
     }
 }
+private fun String.split() = split("$").filter { it.length > 1 || it.getOrNull(0)?.isLetter() ?: false }
