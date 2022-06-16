@@ -9,8 +9,8 @@ build.gradle (app)
 
 ```groovy
 dependencies {
-    debugImplementation 'com.github.mrizyver.EfficientLogs:debug:1.2.6'
-    releaseImplementation 'com.github.mrizyver.EfficientLogs:release:1.2.6'
+    debugImplementation 'com.github.mrizyver.EfficientLogs:debug:1.3.0'
+    releaseImplementation 'com.github.mrizyver.EfficientLogs:release:1.3.0'
 }
 ```
 
@@ -34,6 +34,10 @@ class ClassName {
         logi { "Info" }     //prints 'ClassName: methodName(): Info'
         logw { "Warning" }  //prints 'ClassName: methodName(): Warning'
         loge { "Error" }    //prints 'ClassName: methodName(): Error'
+
+        logd { "".logNonEmpty() }   //prints nothing
+        logd { null.logNonNull() }  //prints nothing
+        logd { null.logNonEmpty() } //prints 'ClassName: methodName(): null'
     }
 }
 ```
