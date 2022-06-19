@@ -36,6 +36,10 @@ inline fun logd(message: LogMessage) {
     if (LOG_ON) InternalLogs.d(_logTag(), _formatMessage(message()) ?: return)
 }
 
+inline fun logd(tag: String, message: LogMessage) {
+    if (LOG_ON) InternalLogs.d(tag, _formatMessage(message()) ?: return)
+}
+
 inline fun logi() {
     if (LOG_ON) InternalLogs.i(_logTag(), _formatMessage("") ?: return)
 }
