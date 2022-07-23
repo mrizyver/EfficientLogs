@@ -6,7 +6,7 @@ import java.lang.reflect.Field
 import java.lang.reflect.Method
 
 @Suppress("FunctionName")
-fun _formatMessage(message: CharSequence?): String? {
+fun _formatMessage(message: CharSequence?, methodName: String): String? {
     when (message) {
         is NonNull -> if (message.text == null) return null
         is NonEmpty -> if (message.text?.isEmpty() == true) return null
@@ -16,53 +16,50 @@ fun _formatMessage(message: CharSequence?): String? {
         is LogCharSequence -> message.text
         else -> message.toString()
     }
-    return if (msg?.isEmpty() == true) _logMethodName()
-    else "${_logMethodName()}: $msg"
-}
-
-@Suppress("FunctionName")
-fun _logTag(): String {
-    return _logAndMethodName().tag
-}
-
-@Suppress("FunctionName")
-fun _logMethodName(): String {
-    return _logAndMethodName().method
+    return if (msg?.isEmpty() == true) methodName
+    else "${methodName}: $msg"
 }
 
 data class TagAndName(val tag: String, val method: String)
 
 @Suppress("FunctionName")
-fun _logAndMethodName(): TagAndName {
+fun _logAndMethodName(): TagAndName = try {
     val index = _indexOfCurrentClassStackTrace()
     val element = Thread.currentThread().stackTrace[index]
     val className = element.className.split('.').last()
     val methodName = element.methodName
-    val classNameParts = className.split("$")
-    val methodNameParts = methodName.split("$")
-    val (isInFunctionConstruction, isLambda, isClassField) = getMetaData(element.className, methodNameParts)
-    if (isLambda && isClassField && methodName == "invoke") {
-        return TagAndName(classNameParts[0], classNameParts[1])
-    } else if (isLambda && isClassField) {
-        return TagAndName(classNameParts[0], "${classNameParts[1]}.$methodName()")
-    } else if (isClassField) {
-        return TagAndName(classNameParts[0], methodNameParts.first())
-    } else if (isLambda && methodName == "invoke") {
-        val additionalName = classNameParts[2].takeUnless { it.matches(Regex("[0-9]+")) } ?: ""
-        return TagAndName(classNameParts[0], "${classNameParts[1]}(${additionalName})")
-    } else if (isLambda) {
-        return TagAndName(classNameParts[0], "${classNameParts[1]}($methodName)")
-    } else if (isInFunctionConstruction) {
-        return TagAndName(classNameParts[0], "${classNameParts[1]}($methodName)")
-    } else if (classNameParts.size == 1 && methodNameParts.size > 1) {
-        return TagAndName(classNameParts[0], "${methodNameParts[0]}(${methodNameParts[1]})")
-    } else if (classNameParts.size > 1) {
-        return TagAndName(classNameParts[1], "$methodName()")
-    } else {
-        val tag = (LogsConfig._prefix ?: "") + (classNameParts.getOrNull(0) ?: className)
-        val method = "$methodName()"
-        return TagAndName(tag, method)
+    try {
+        val classNameParts = className.split("$")
+        val methodNameParts = methodName.split("$")
+        val (isInFunctionConstruction, isLambda, isClassField) = getMetaData(element.className, methodNameParts)
+        if (isLambda && isClassField && methodName == "invoke") {
+            TagAndName(classNameParts[0], classNameParts[classNameParts.lastIndex - 1])
+        } else if (isLambda && isClassField) {
+            TagAndName(classNameParts[0], "${classNameParts[classNameParts.lastIndex - 1]}.$methodName()")
+        } else if (isClassField) {
+            TagAndName(classNameParts[0], methodNameParts.first())
+        } else if (isLambda && methodName == "invoke") {
+            val additionalName = classNameParts[2].takeUnless { it.matches(Regex("[0-9]+")) } ?: ""
+            TagAndName(classNameParts[0], "${classNameParts[1]}(${additionalName})")
+        } else if (isLambda) {
+            val additionalName = methodNameParts[0].takeUnless { it == "invoke" } ?: ""
+            TagAndName(classNameParts[0], "${classNameParts[1]}($additionalName)")
+        } else if (isInFunctionConstruction) {
+            TagAndName(classNameParts[0], "${classNameParts[1]}($methodName)")
+        } else if (classNameParts.size == 1 && methodNameParts.size > 1) {
+            TagAndName(classNameParts[0], "${methodNameParts[0]}(${methodNameParts[1]})")
+        } else if (classNameParts.size > 1) {
+            TagAndName(classNameParts[1], "$methodName()")
+        } else {
+            val tag = (LogsConfig._prefix ?: "") + (classNameParts.getOrNull(0) ?: className)
+            val method = "$methodName()"
+            TagAndName(tag, method)
+        }
+    } catch (e: Exception) {
+        TagAndName(className, methodName)
     }
+} catch (e: Exception) {
+    TagAndName("", "")
 }
 
 data class ClassNameData(
