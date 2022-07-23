@@ -40,9 +40,11 @@ fun _logAndMethodName(): TagAndName {
     val methodName = element.methodName
     val classNameParts = className.split("$")
     val methodNameParts = methodName.split("$")
-    val (isInFunctionConstruction, isLambda, isClassField) = getClassNameData(element.className)
-    if (isLambda && !isInFunctionConstruction) {
+    val (isInFunctionConstruction, isLambda, isClassField) = getMetaData(element.className, methodNameParts)
+    if (isLambda && isClassField) {
         return TagAndName(classNameParts[0], "${classNameParts[1]}.$methodName()")
+    } else if (isClassField) {
+        return TagAndName(classNameParts[0], methodNameParts.first())
     } else if (isLambda && methodName == "invoke") {
         val additionalName = classNameParts[2].takeUnless { it.matches(Regex("[0-9]+")) } ?: ""
         return TagAndName(classNameParts[0], "${classNameParts[1]}(${additionalName})")
@@ -67,14 +69,14 @@ data class ClassNameData(
     val isClassField: Boolean
 )
 
-private fun getClassNameData(fullClassName: String): ClassNameData {
-    val parts = fullClassName.split("$")
-    val clazz = Class.forName(parts.first())
+private fun getMetaData(fullClassName: String, methodNameParts: List<String>): ClassNameData {
+    val classNameParts = fullClassName.split("$")
+    val clazz = Class.forName(classNameParts.first())
     val fields = clazz.declaredFields.map(Field::getName).toSet()
     val methods = clazz.declaredMethods.map(Method::getName).toSet()
-    val isLambda = parts.last().matches(Regex("[0-9]+\$"))
-    val isClassField = parts.any(fields::contains)
-    val isInFunctionConstruction = parts.any(methods::contains)
+    val isLambda = classNameParts.last().matches(Regex("[0-9]+\$"))
+    val isClassField = classNameParts.any(fields::contains) || methodNameParts.any(fields::contains)
+    val isInFunctionConstruction = classNameParts.any(methods::contains)
     return ClassNameData(isInFunctionConstruction, isLambda, isClassField)
 }
 

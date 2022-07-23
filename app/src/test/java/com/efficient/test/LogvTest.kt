@@ -42,6 +42,8 @@ internal class LogvTest {
         }
     }
 
+    private val runnable = Runnable { logv() }
+
     @Before
     fun before() {
         mockkStatic(Log::class)
@@ -150,5 +152,12 @@ internal class LogvTest {
         //class name 'LogsTestKt'
         outOfClassFunction()
         verify { Log.v("LogvTestKt", "outOfClassFunction()") }
+    }
+
+    @Test
+    fun `test in class runnable` (){
+        //class name 'LogvTest', method name 'runnable$lambda-0'
+        runnable.run()
+        verify { Log.v("LogvTest", "runnable") }
     }
 }
