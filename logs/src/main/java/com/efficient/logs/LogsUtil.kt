@@ -41,7 +41,9 @@ fun _logAndMethodName(): TagAndName {
     val classNameParts = className.split("$")
     val methodNameParts = methodName.split("$")
     val (isInFunctionConstruction, isLambda, isClassField) = getMetaData(element.className, methodNameParts)
-    if (isLambda && isClassField) {
+    if (isLambda && isClassField && methodName == "invoke") {
+        return TagAndName(classNameParts[0], classNameParts[1])
+    } else if (isLambda && isClassField) {
         return TagAndName(classNameParts[0], "${classNameParts[1]}.$methodName()")
     } else if (isClassField) {
         return TagAndName(classNameParts[0], methodNameParts.first())
