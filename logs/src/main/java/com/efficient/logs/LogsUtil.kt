@@ -2,6 +2,8 @@ package com.efficient.logs
 
 import java.io.PrintWriter
 import java.io.StringWriter
+import java.lang.reflect.Field
+import java.lang.reflect.Method
 
 @Suppress("FunctionName")
 fun _formatMessage(message: CharSequence?): String? {
@@ -9,7 +11,7 @@ fun _formatMessage(message: CharSequence?): String? {
         is NonNull -> if (message.text == null) return null
         is NonEmpty -> if (message.text?.isEmpty() == true) return null
     }
-    val msg = when(message) {
+    val msg = when (message) {
         is String -> message
         is LogCharSequence -> message.text
         else -> message.toString()
@@ -20,22 +22,60 @@ fun _formatMessage(message: CharSequence?): String? {
 
 @Suppress("FunctionName")
 fun _logTag(): String {
-    val index = _indexOfCurrentClassStackTrace()
-    val className = Thread.currentThread().stackTrace[index].className.split('.').last()
-    val nameParts = className.split("$").filter { it.length > 1 || it.getOrNull(0)?.isLetter() ?: false }
-    return (LogsConfig._prefix ?: "") + (nameParts.getOrNull(0) ?: className)
+    return _logAndMethodName().tag
 }
 
 @Suppress("FunctionName")
 fun _logMethodName(): String {
+    return _logAndMethodName().method
+}
+
+data class TagAndName(val tag: String, val method: String)
+
+@Suppress("FunctionName")
+fun _logAndMethodName(): TagAndName {
     val index = _indexOfCurrentClassStackTrace()
-    val methodName = Thread.currentThread().stackTrace[index].methodName
-    val methodNameParts = methodName.split()
-    val className = Thread.currentThread().stackTrace[index].className.split('.').last()
-    val classNameParts = className.split()
-    if (classNameParts.size > 1) return "${classNameParts[1]}()"
-    if (methodNameParts.size > 1) return "${methodNameParts[0]}()"
-    return "$methodName()"
+    val element = Thread.currentThread().stackTrace[index]
+    val className = element.className.split('.').last()
+    val methodName = element.methodName
+    val classNameParts = className.split("$")
+    val methodNameParts = methodName.split("$")
+    val (isInFunctionConstruction, isLambda, isClassField) = getClassNameData(element.className)
+    if (isLambda && !isInFunctionConstruction) {
+        return TagAndName(classNameParts[0], "${classNameParts[1]}.$methodName()")
+    } else if (isLambda && methodName == "invoke") {
+        val additionalName = classNameParts[2].takeUnless { it.matches(Regex("[0-9]+")) } ?: ""
+        return TagAndName(classNameParts[0], "${classNameParts[1]}(${additionalName})")
+    } else if (isLambda) {
+        return TagAndName(classNameParts[0], "${classNameParts[1]}($methodName)")
+    } else if (isInFunctionConstruction) {
+        return TagAndName(classNameParts[0], "${classNameParts[1]}($methodName)")
+    } else if (classNameParts.size == 1 && methodNameParts.size > 1) {
+        return TagAndName(classNameParts[0], "${methodNameParts[0]}(${methodNameParts[1]})")
+    } else if (classNameParts.size > 1) {
+        return TagAndName(classNameParts[1], "$methodName()")
+    } else {
+        val tag = (LogsConfig._prefix ?: "") + (classNameParts.getOrNull(0) ?: className)
+        val method = "$methodName()"
+        return TagAndName(tag, method)
+    }
+}
+
+data class ClassNameData(
+    val isInFunctionConstruction: Boolean,
+    val isLambda: Boolean,
+    val isClassField: Boolean
+)
+
+private fun getClassNameData(fullClassName: String): ClassNameData {
+    val parts = fullClassName.split("$")
+    val clazz = Class.forName(parts.first())
+    val fields = clazz.declaredFields.map(Field::getName).toSet()
+    val methods = clazz.declaredMethods.map(Method::getName).toSet()
+    val isLambda = parts.last().matches(Regex("[0-9]+\$"))
+    val isClassField = parts.any(fields::contains)
+    val isInFunctionConstruction = parts.any(methods::contains)
+    return ClassNameData(isInFunctionConstruction, isLambda, isClassField)
 }
 
 @Suppress("FunctionName", "NOTHING_TO_INLINE")
@@ -55,4 +95,3 @@ fun _getDetails(throwable: Throwable): String {
         printWriter.close()
     }
 }
-private fun String.split() = split("$").filter { it.length > 1 || it.getOrNull(0)?.isLetter() ?: false }
