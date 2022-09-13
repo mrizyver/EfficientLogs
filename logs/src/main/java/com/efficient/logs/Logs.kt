@@ -17,8 +17,8 @@ inline fun logv() {
 
 inline fun logv(tag: String) {
     if (LOG_ON) {
-        val (_, method) = _logAndMethodName()
-        InternalLogs.v(tag, _formatMessage("", method) ?: return)
+        val (_, method, prefix) = _logAndMethodName()
+        InternalLogs.v(prefix + tag, _formatMessage("", method) ?: return)
     }
 }
 
@@ -31,8 +31,8 @@ inline fun logv(message: LogMessage) {
 
 inline fun logv(tag: String, message: LogMessage) {
     if (LOG_ON) {
-        val (_, method) = _logAndMethodName()
-        InternalLogs.v(tag, _formatMessage(message(), method) ?: return)
+        val (_, method, prefix) = _logAndMethodName()
+        InternalLogs.v(prefix + tag, _formatMessage(message(), method) ?: return)
     }
 }
 
@@ -45,8 +45,8 @@ inline fun logd() {
 
 inline fun logd(tag: String) {
     if (LOG_ON) {
-        val (_, method) = _logAndMethodName()
-        InternalLogs.d(tag, _formatMessage("", method) ?: return)
+        val (_, method, prefix) = _logAndMethodName()
+        InternalLogs.d(prefix + tag, _formatMessage("", method) ?: return)
     }
 }
 
@@ -59,8 +59,8 @@ inline fun logd(message: LogMessage) {
 
 inline fun logd(tag: String, message: LogMessage) {
     if (LOG_ON) {
-        val (_, method) = _logAndMethodName()
-        InternalLogs.d(tag, _formatMessage(message(), method) ?: return)
+        val (_, method, prefix) = _logAndMethodName()
+        InternalLogs.d(prefix + tag, _formatMessage(message(), method) ?: return)
     }
 }
 
@@ -73,8 +73,8 @@ inline fun logi() {
 
 inline fun logi(tag: String) {
     if (LOG_ON) {
-        val (_, method) = _logAndMethodName()
-        InternalLogs.i(tag, _formatMessage("", method) ?: return)
+        val (_, method, prefix) = _logAndMethodName()
+        InternalLogs.i(prefix + tag, _formatMessage("", method) ?: return)
     }
 }
 
@@ -87,8 +87,8 @@ inline fun logi(message: LogMessage) {
 
 inline fun logi(tag: String, message: LogMessage) {
     if (LOG_ON) {
-        val (_, method) = _logAndMethodName()
-        InternalLogs.i(tag, _formatMessage(message(), method) ?: return)
+        val (_, method, prefix) = _logAndMethodName()
+        InternalLogs.i(prefix + tag, _formatMessage(message(), method) ?: return)
     }
 }
 
@@ -101,8 +101,8 @@ inline fun logw() {
 
 inline fun logw(tag: String) {
     if (LOG_ON) {
-        val (_, method) = _logAndMethodName()
-        InternalLogs.w(tag, _formatMessage("", method) ?: return)
+        val (_, method, prefix) = _logAndMethodName()
+        InternalLogs.w(prefix + tag, _formatMessage("", method) ?: return)
     }
 }
 
@@ -115,22 +115,22 @@ inline fun logw(message: LogMessage) {
 
 inline fun logw(tag: String, message: LogMessage) {
     if (LOG_ON) {
-        val (_, method) = _logAndMethodName()
-        InternalLogs.w(tag, _formatMessage(message(), method) ?: return)
+        val (_, method, prefix) = _logAndMethodName()
+        InternalLogs.w(prefix + tag, _formatMessage(message(), method) ?: return)
     }
 }
 
 inline fun loge(message: LogMessage) {
     if (LOG_ON) {
-        val (tag, method) = _logAndMethodName()
-        InternalLogs.e(tag, _formatMessage(message(), method) ?: return)
+        val (tag, method, prefix) = _logAndMethodName()
+        InternalLogs.e(prefix + tag, _formatMessage(message(), method) ?: return)
     }
 }
 
 inline fun loge(tag: String, message: LogMessage) {
     if (LOG_ON) {
-        val (_, method) = _logAndMethodName()
-        InternalLogs.e(tag, _formatMessage(message(), method) ?: return)
+        val (_, method, prefix) = _logAndMethodName()
+        InternalLogs.e(prefix + tag, _formatMessage(message(), method) ?: return)
     }
 }
 
@@ -143,8 +143,8 @@ inline fun loge(throwable: Throwable) {
 
 inline fun loge(tag: String, throwable: Throwable) {
     if (LOG_ON) {
-        val (_, method) = _logAndMethodName()
-        InternalLogs.e(tag, _formatMessage(_getDetails(throwable), method) ?: return)
+        val (_, method, prefix) = _logAndMethodName()
+        InternalLogs.e(prefix + tag, _formatMessage(_getDetails(throwable), method) ?: return)
     }
 }
 
@@ -157,8 +157,8 @@ inline fun loge(throwable: Throwable, message: LogMessage) {
 
 inline fun loge(tag: String, throwable: Throwable, message: LogMessage) {
     if (LOG_ON) {
-        val (_, method) = _logAndMethodName()
-        InternalLogs.e(tag, _formatMessage(message(), method) ?: return, throwable)
+        val (_, method, prefix) = _logAndMethodName()
+        InternalLogs.e(prefix + tag, _formatMessage(message(), method) ?: return, throwable)
     }
 }
 

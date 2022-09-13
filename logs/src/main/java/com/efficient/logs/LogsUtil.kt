@@ -20,7 +20,7 @@ fun _formatMessage(message: CharSequence?, methodName: String): String? {
     else "${methodName}: $msg"
 }
 
-data class TagAndName(val tag: String, val method: String)
+data class TagAndName(val tag: String, val method: String, val prefix: String)
 
 @Suppress("FunctionName")
 fun _logAndMethodName(): TagAndName = try {
@@ -28,38 +28,55 @@ fun _logAndMethodName(): TagAndName = try {
     val element = Thread.currentThread().stackTrace[index]
     val className = element.className.split('.').last()
     val methodName = element.methodName
+    val prefix = LogsConfig._prefix ?: ""
     try {
         val classNameParts = className.split("$")
         val methodNameParts = methodName.split("$")
         val (isInFunctionConstruction, isLambda, isClassField) = getMetaData(element.className, methodNameParts)
         if (isLambda && isClassField && methodName == "invoke") {
-            TagAndName(classNameParts[0], classNameParts[classNameParts.lastIndex - 1])
+            TagAndName(
+                prefix + classNameParts[0],
+                classNameParts[classNameParts.lastIndex - 1],
+                prefix
+            )
         } else if (isLambda && isClassField) {
-            TagAndName(classNameParts[0], "${classNameParts[classNameParts.lastIndex - 1]}.$methodName()")
+            TagAndName(
+                prefix + classNameParts[0],
+                "${classNameParts[classNameParts.lastIndex - 1]}.$methodName()",
+                prefix
+            )
         } else if (isClassField) {
-            TagAndName(classNameParts[0], methodNameParts.first())
+            TagAndName(prefix + classNameParts[0], methodNameParts.first(), prefix)
         } else if (isLambda && methodName == "invoke") {
             val additionalName = classNameParts[2].takeUnless { it.matches(Regex("[0-9]+")) } ?: ""
-            TagAndName(classNameParts[0], "${classNameParts[1]}(${additionalName})")
+            TagAndName(
+                prefix + classNameParts[0],
+                "${classNameParts[1]}(${additionalName})",
+                prefix
+            )
         } else if (isLambda) {
             val additionalName = methodNameParts[0].takeUnless { it == "invoke" } ?: ""
-            TagAndName(classNameParts[0], "${classNameParts[1]}($additionalName)")
+            TagAndName(prefix + classNameParts[0], "${classNameParts[1]}($additionalName)", prefix)
         } else if (isInFunctionConstruction) {
-            TagAndName(classNameParts[0], "${classNameParts[1]}($methodName)")
+            TagAndName(prefix + classNameParts[0], "${classNameParts[1]}($methodName)", prefix)
         } else if (classNameParts.size == 1 && methodNameParts.size > 1) {
-            TagAndName(classNameParts[0], "${methodNameParts[0]}(${methodNameParts[1]})")
+            TagAndName(
+                prefix + classNameParts[0],
+                "${methodNameParts[0]}(${methodNameParts[1]})",
+                prefix
+            )
         } else if (classNameParts.size > 1) {
-            TagAndName(classNameParts[1], "$methodName()")
+            TagAndName(prefix + classNameParts[1], "$methodName()", prefix)
         } else {
-            val tag = (LogsConfig._prefix ?: "") + (classNameParts.getOrNull(0) ?: className)
+            val tag = classNameParts.getOrNull(0) ?: className
             val method = "$methodName()"
-            TagAndName(tag, method)
+            TagAndName(prefix + tag, method, prefix)
         }
     } catch (e: Exception) {
-        TagAndName(className, methodName)
+        TagAndName(prefix + className, methodName, prefix)
     }
 } catch (e: Exception) {
-    TagAndName("", "")
+    TagAndName("", "", "")
 }
 
 data class ClassNameData(

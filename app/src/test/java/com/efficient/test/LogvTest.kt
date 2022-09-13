@@ -4,8 +4,11 @@ import android.util.Log
 import com.efficient.logs.*
 import io.mockk.mockkStatic
 import io.mockk.verify
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.flow
 import org.junit.Before
 import org.junit.Test
+import java.lang.Runnable
 
 fun outOfClassFunction() {
     logv()
@@ -14,7 +17,37 @@ fun outOfClassFunction() {
     logw()
 }
 
+class CoroutineInInitBlockOutOfClass(scope: CoroutineScope) {
+    init {
+        scope.launch {
+            flow {
+                emit(1)
+            }.collect{
+                logv { "$it"}
+                logd { "$it"}
+                logi { "$it"}
+                logw { "$it"}
+            }
+        }
+    }
+}
+
 internal class LogvTest {
+
+    class CoroutineInInitBlockInClass(scope: CoroutineScope) {
+        init {
+            scope.launch {
+                flow {
+                    emit(1)
+                }.collect{
+                    logv { "$it"}
+                    logd { "$it"}
+                    logi { "$it"}
+                    logw { "$it"}
+                }
+            }
+        }
+    }
 
     private class LogHolder {
         fun printLog() {
@@ -82,6 +115,7 @@ internal class LogvTest {
     @Before
     fun before() {
         mockkStatic(Log::class)
+        logprefix("prefix_")
     }
 
     @Test
@@ -91,17 +125,17 @@ internal class LogvTest {
         logd()
         logi()
         logw()
-        verify { Log.v("LogvTest", "test with enclosing brackets()") }
-        verify { Log.d("LogvTest", "test with enclosing brackets()") }
-        verify { Log.i("LogvTest", "test with enclosing brackets()") }
-        verify { Log.w("LogvTest", "test with enclosing brackets()") }
+        verify { Log.v("prefix_LogvTest", "test with enclosing brackets()") }
+        verify { Log.d("prefix_LogvTest", "test with enclosing brackets()") }
+        verify { Log.i("prefix_LogvTest", "test with enclosing brackets()") }
+        verify { Log.w("prefix_LogvTest", "test with enclosing brackets()") }
     }
 
     @Test
     fun `test in static class inside other class`() {
         //class name 'LogsTest$LogHolder'
         LogHolder().printLog()
-        verify { Log.v("LogHolder", "printLog()") }
+        verify { Log.v("prefix_LogHolder", "printLog()") }
     }
 
     @Test
@@ -113,10 +147,10 @@ internal class LogvTest {
             logi()
             logw()
         }
-        verify { Log.v("LogvTest", "test in lambda invoker()") }
-        verify { Log.d("LogvTest", "test in lambda invoker()") }
-        verify { Log.i("LogvTest", "test in lambda invoker()") }
-        verify { Log.w("LogvTest", "test in lambda invoker()") }
+        verify { Log.v("prefix_LogvTest", "test in lambda invoker()") }
+        verify { Log.d("prefix_LogvTest", "test in lambda invoker()") }
+        verify { Log.i("prefix_LogvTest", "test in lambda invoker()") }
+        verify { Log.w("prefix_LogvTest", "test in lambda invoker()") }
     }
 
     @Test
@@ -130,10 +164,10 @@ internal class LogvTest {
             logw()
         }
         holder.invokeLambda()
-        verify { Log.v("LogvTest", "test in lambda holder()") }
-        verify { Log.d("LogvTest", "test in lambda holder()") }
-        verify { Log.i("LogvTest", "test in lambda holder()") }
-        verify { Log.w("LogvTest", "test in lambda holder()") }
+        verify { Log.v("prefix_LogvTest", "test in lambda holder()") }
+        verify { Log.d("prefix_LogvTest", "test in lambda holder()") }
+        verify { Log.i("prefix_LogvTest", "test in lambda holder()") }
+        verify { Log.w("prefix_LogvTest", "test in lambda holder()") }
     }
 
     @Test
@@ -150,10 +184,10 @@ internal class LogvTest {
             runnable.run()
         }
         holder.invokeLambda()
-        verify { Log.v("LogvTest", "test in lambda holder with nesting()") }
-        verify { Log.d("LogvTest", "test in lambda holder with nesting()") }
-        verify { Log.i("LogvTest", "test in lambda holder with nesting()") }
-        verify { Log.w("LogvTest", "test in lambda holder with nesting()") }
+        verify { Log.v("prefix_LogvTest", "test in lambda holder with nesting()") }
+        verify { Log.d("prefix_LogvTest", "test in lambda holder with nesting()") }
+        verify { Log.i("prefix_LogvTest", "test in lambda holder with nesting()") }
+        verify { Log.w("prefix_LogvTest", "test in lambda holder with nesting()") }
     }
 
     @Test
@@ -173,10 +207,10 @@ internal class LogvTest {
             runnable.run()
         }
         holder.invokeLambda()
-        verify { Log.v("LogvTest", "test in lambda holder with double nesting()") }
-        verify { Log.d("LogvTest", "test in lambda holder with double nesting()") }
-        verify { Log.i("LogvTest", "test in lambda holder with double nesting()") }
-        verify { Log.w("LogvTest", "test in lambda holder with double nesting()") }
+        verify { Log.v("prefix_LogvTest", "test in lambda holder with double nesting()") }
+        verify { Log.d("prefix_LogvTest", "test in lambda holder with double nesting()") }
+        verify { Log.i("prefix_LogvTest", "test in lambda holder with double nesting()") }
+        verify { Log.w("prefix_LogvTest", "test in lambda holder with double nesting()") }
     }
 
     @Test
@@ -191,10 +225,10 @@ internal class LogvTest {
             }
         }
         InFunctionClass().printInFunctionLog()
-        verify { Log.v("LogvTest", "test with in function class(printInFunctionLog)") }
-        verify { Log.d("LogvTest", "test with in function class(printInFunctionLog)") }
-        verify { Log.i("LogvTest", "test with in function class(printInFunctionLog)") }
-        verify { Log.w("LogvTest", "test with in function class(printInFunctionLog)") }
+        verify { Log.v("prefix_LogvTest", "test with in function class(printInFunctionLog)") }
+        verify { Log.d("prefix_LogvTest", "test with in function class(printInFunctionLog)") }
+        verify { Log.i("prefix_LogvTest", "test with in function class(printInFunctionLog)") }
+        verify { Log.w("prefix_LogvTest", "test with in function class(printInFunctionLog)") }
     }
 
     @Test
@@ -214,10 +248,10 @@ internal class LogvTest {
             }
         }
         InFunctionClass().method()
-        verify { Log.v("LogvTest", "test with in function class and nesting(nestedMethod)") }
-        verify { Log.d("LogvTest", "test with in function class and nesting(nestedMethod)") }
-        verify { Log.i("LogvTest", "test with in function class and nesting(nestedMethod)") }
-        verify { Log.w("LogvTest", "test with in function class and nesting(nestedMethod)") }
+        verify { Log.v("prefix_LogvTest", "test with in function class and nesting(nestedMethod)") }
+        verify { Log.d("prefix_LogvTest", "test with in function class and nesting(nestedMethod)") }
+        verify { Log.i("prefix_LogvTest", "test with in function class and nesting(nestedMethod)") }
+        verify { Log.w("prefix_LogvTest", "test with in function class and nesting(nestedMethod)") }
     }
 
     @Test
@@ -235,10 +269,10 @@ internal class LogvTest {
             }
         }
         InFunctionClass().method()
-        verify { Log.v("LogvTest", "test with in function class and nested another lambda(InFunctionClass)") }
-        verify { Log.d("LogvTest", "test with in function class and nested another lambda(InFunctionClass)") }
-        verify { Log.i("LogvTest", "test with in function class and nested another lambda(InFunctionClass)") }
-        verify { Log.w("LogvTest", "test with in function class and nested another lambda(InFunctionClass)") }
+        verify { Log.v("prefix_LogvTest", "test with in function class and nested another lambda(InFunctionClass)") }
+        verify { Log.d("prefix_LogvTest", "test with in function class and nested another lambda(InFunctionClass)") }
+        verify { Log.i("prefix_LogvTest", "test with in function class and nested another lambda(InFunctionClass)") }
+        verify { Log.w("prefix_LogvTest", "test with in function class and nested another lambda(InFunctionClass)") }
     }
 
     @Test
@@ -253,10 +287,10 @@ internal class LogvTest {
             }
         }
         inFunctionObject.printInFunctionObjectLog()
-        verify { Log.v("LogvTest", "test with in function object(printInFunctionObjectLog)") }
-        verify { Log.d("LogvTest", "test with in function object(printInFunctionObjectLog)") }
-        verify { Log.i("LogvTest", "test with in function object(printInFunctionObjectLog)") }
-        verify { Log.w("LogvTest", "test with in function object(printInFunctionObjectLog)") }
+        verify { Log.v("prefix_LogvTest", "test with in function object(printInFunctionObjectLog)") }
+        verify { Log.d("prefix_LogvTest", "test with in function object(printInFunctionObjectLog)") }
+        verify { Log.i("prefix_LogvTest", "test with in function object(printInFunctionObjectLog)") }
+        verify { Log.w("prefix_LogvTest", "test with in function object(printInFunctionObjectLog)") }
     }
 
     @Test
@@ -271,10 +305,10 @@ internal class LogvTest {
             }
         }
         inFunctionObject.invoke()
-        verify { Log.v("LogvTest", "test with in function object and function invoke(inFunctionObject)") }
-        verify { Log.d("LogvTest", "test with in function object and function invoke(inFunctionObject)") }
-        verify { Log.i("LogvTest", "test with in function object and function invoke(inFunctionObject)") }
-        verify { Log.w("LogvTest", "test with in function object and function invoke(inFunctionObject)") }
+        verify { Log.v("prefix_LogvTest", "test with in function object and function invoke(inFunctionObject)") }
+        verify { Log.d("prefix_LogvTest", "test with in function object and function invoke(inFunctionObject)") }
+        verify { Log.i("prefix_LogvTest", "test with in function object and function invoke(inFunctionObject)") }
+        verify { Log.w("prefix_LogvTest", "test with in function object and function invoke(inFunctionObject)") }
     }
 
     @Test
@@ -287,10 +321,10 @@ internal class LogvTest {
             logw()
         }
         inFunctionLambda()
-        verify { Log.v("LogvTest", "test with in function lambda(inFunctionLambda)") }
-        verify { Log.d("LogvTest", "test with in function lambda(inFunctionLambda)") }
-        verify { Log.i("LogvTest", "test with in function lambda(inFunctionLambda)") }
-        verify { Log.w("LogvTest", "test with in function lambda(inFunctionLambda)") }
+        verify { Log.v("prefix_LogvTest", "test with in function lambda(inFunctionLambda)") }
+        verify { Log.d("prefix_LogvTest", "test with in function lambda(inFunctionLambda)") }
+        verify { Log.i("prefix_LogvTest", "test with in function lambda(inFunctionLambda)") }
+        verify { Log.w("prefix_LogvTest", "test with in function lambda(inFunctionLambda)") }
     }
 
     @Test
@@ -303,13 +337,14 @@ internal class LogvTest {
             logw()
         }
         inFunctionFunction()
-        verify { Log.v("LogvTest", "test_with_in_function_function(inFunctionFunction)") }
-        verify { Log.d("LogvTest", "test_with_in_function_function(inFunctionFunction)") }
-        verify { Log.i("LogvTest", "test_with_in_function_function(inFunctionFunction)") }
-        verify { Log.w("LogvTest", "test_with_in_function_function(inFunctionFunction)") }
+        verify { Log.v("prefix_LogvTest", "test_with_in_function_function(inFunctionFunction)") }
+        verify { Log.d("prefix_LogvTest", "test_with_in_function_function(inFunctionFunction)") }
+        verify { Log.i("prefix_LogvTest", "test_with_in_function_function(inFunctionFunction)") }
+        verify { Log.w("prefix_LogvTest", "test_with_in_function_function(inFunctionFunction)") }
     }
 
     @Test
+    @Suppress("RedundantLambdaOrAnonymousFunction")
     fun `test with in function no name lambda`() {
         //class name 'LogsTest$test with in function lambda$1'
         {
@@ -318,61 +353,62 @@ internal class LogvTest {
             logi()
             logw()
         }()
-        verify { Log.v("LogvTest", "test with in function no name lambda()") }
-        verify { Log.d("LogvTest", "test with in function no name lambda()") }
-        verify { Log.i("LogvTest", "test with in function no name lambda()") }
-        verify { Log.w("LogvTest", "test with in function no name lambda()") }
+        verify { Log.v("prefix_LogvTest", "test with in function no name lambda()") }
+        verify { Log.d("prefix_LogvTest", "test with in function no name lambda()") }
+        verify { Log.i("prefix_LogvTest", "test with in function no name lambda()") }
+        verify { Log.w("prefix_LogvTest", "test with in function no name lambda()") }
     }
 
     @Test
     fun `test with in class object`() {
         //class name 'LogsTest$inClassObject$1'
         inClassObject.printInClassObjectLog()
-        verify { Log.v("LogvTest", "inClassObject.printInClassObjectLog()") }
-        verify { Log.d("LogvTest", "inClassObject.printInClassObjectLog()") }
-        verify { Log.i("LogvTest", "inClassObject.printInClassObjectLog()") }
-        verify { Log.w("LogvTest", "inClassObject.printInClassObjectLog()") }
+        verify { Log.v("prefix_LogvTest", "inClassObject.printInClassObjectLog()") }
+        verify { Log.d("prefix_LogvTest", "inClassObject.printInClassObjectLog()") }
+        verify { Log.i("prefix_LogvTest", "inClassObject.printInClassObjectLog()") }
+        verify { Log.w("prefix_LogvTest", "inClassObject.printInClassObjectLog()") }
     }
 
     @Test
     fun `out of class function test`() {
         //class name 'LogsTestKt'
         outOfClassFunction()
-        verify { Log.v("LogvTestKt", "outOfClassFunction()") }
-        verify { Log.d("LogvTestKt", "outOfClassFunction()") }
-        verify { Log.i("LogvTestKt", "outOfClassFunction()") }
-        verify { Log.w("LogvTestKt", "outOfClassFunction()") }
+        verify { Log.v("prefix_LogvTestKt", "outOfClassFunction()") }
+        verify { Log.d("prefix_LogvTestKt", "outOfClassFunction()") }
+        verify { Log.i("prefix_LogvTestKt", "outOfClassFunction()") }
+        verify { Log.w("prefix_LogvTestKt", "outOfClassFunction()") }
     }
 
     @Test
     fun `test in class runnable` (){
         //class name 'LogvTest', method name 'runnable$lambda-0'
         runnable.run()
-        verify { Log.v("LogvTest", "runnable") }
-        verify { Log.d("LogvTest", "runnable") }
-        verify { Log.i("LogvTest", "runnable") }
-        verify { Log.w("LogvTest", "runnable") }
+        verify { Log.v("prefix_LogvTest", "runnable") }
+        verify { Log.d("prefix_LogvTest", "runnable") }
+        verify { Log.i("prefix_LogvTest", "runnable") }
+        verify { Log.w("prefix_LogvTest", "runnable") }
     }
 
     @Test
     fun `test in class lambda` (){
         //class name 'LogvTest', method name 'runnable$lambda-0'
         lambda()
-        verify { Log.v("LogvTest", "lambda") }
-        verify { Log.d("LogvTest", "lambda") }
-        verify { Log.i("LogvTest", "lambda") }
-        verify { Log.w("LogvTest", "lambda") }
+        verify { Log.v("prefix_LogvTest", "lambda") }
+        verify { Log.d("prefix_LogvTest", "lambda") }
+        verify { Log.i("prefix_LogvTest", "lambda") }
+        verify { Log.w("prefix_LogvTest", "lambda") }
     }
 
     @Test
     fun `test in class nested object`() {
         inClassNestedObject.method()
-        verify { Log.v("LogvTest", "nestedObject.printInClassNestedObjectLog()") }
-        verify { Log.d("LogvTest", "nestedObject.printInClassNestedObjectLog()") }
-        verify { Log.i("LogvTest", "nestedObject.printInClassNestedObjectLog()") }
-        verify { Log.w("LogvTest", "nestedObject.printInClassNestedObjectLog()") }
+        verify { Log.v("prefix_LogvTest", "nestedObject.printInClassNestedObjectLog()") }
+        verify { Log.d("prefix_LogvTest", "nestedObject.printInClassNestedObjectLog()") }
+        verify { Log.i("prefix_LogvTest", "nestedObject.printInClassNestedObjectLog()") }
+        verify { Log.w("prefix_LogvTest", "nestedObject.printInClassNestedObjectLog()") }
     }
 
+    @Suppress("RedundantLambdaOrAnonymousFunction")
     @Test
     fun `test log with tag`() {
         logv("tag") { "message" }
@@ -383,13 +419,13 @@ internal class LogvTest {
         logi("tag")
         logw("tag") { "message" }
         logw("tag")
-        verify { Log.v("tag", "test log with tag(): message") }
-        verify { Log.v("tag", "test log with tag()") }
-        verify { Log.d("tag", "test log with tag(): message") }
-        verify { Log.d("tag", "test log with tag()") }
-        verify { Log.i("tag", "test log with tag(): message") }
-        verify { Log.i("tag", "test log with tag()") }
-        verify { Log.w("tag", "test log with tag(): message") }
-        verify { Log.w("tag", "test log with tag()") }
+        verify { Log.v("prefix_tag", "test log with tag(): message") }
+        verify { Log.v("prefix_tag", "test log with tag()") }
+        verify { Log.d("prefix_tag", "test log with tag(): message") }
+        verify { Log.d("prefix_tag", "test log with tag()") }
+        verify { Log.i("prefix_tag", "test log with tag(): message") }
+        verify { Log.i("prefix_tag", "test log with tag()") }
+        verify { Log.w("prefix_tag", "test log with tag(): message") }
+        verify { Log.w("prefix_tag", "test log with tag()") }
     }
 }
